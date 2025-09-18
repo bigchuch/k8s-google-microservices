@@ -1,0 +1,11 @@
+appName: shippingservice
+appImage: bigchuch/google-microservices
+appVersion: v1
+appReplicas: 1
+containerPort: 50051
+containerEnvVars: []
+ 
+nameSpace: microservices
+
+servicePort: 50051
+serviceType: ClusterIP

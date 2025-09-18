@@ -1,0 +1,19 @@
+appName: redis-cart 
+appImage: bigchuch/google-microservices
+appVersion: v1
+appReplicas: 1
+containerPort: 6379
+containerEnvVars: []
+
+volumeMounts:
+- name: redis-cart
+  mountPath: /data
+
+volumes:
+- name: redis-cart
+  emptyDir: {}
+ 
+nameSpace: microservices
+
+servicePort: 6379
+serviceType: ClusterIP

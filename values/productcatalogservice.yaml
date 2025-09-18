@@ -1,0 +1,13 @@
+appName: productcatalogservice
+appImage: bigchuch/google-microservices
+appVersion: v1
+appReplicas: 1
+containerPort: 3350
+containerEnvVars:
+- name: PORT
+  value: "3550" 
+ 
+nameSpace: microservices
+
+servicePort: 3550
+serviceType: ClusterIP

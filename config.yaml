@@ -1,0 +1,519 @@
+# ========================================
+# Configuration Set 1
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailservice               # <deployment-name>
+  namespace: microservices
+  labels:
+    app: emailservice           # <app-label> 
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app: emailservice            # <app-label>
+  template:
+    metadata:
+      labels:
+        app: emailservice           # <app-label>
+    spec:
+      containers:
+        - name: service        # <container-name>
+          image: bigchuch/google-microservices:emailservice-v1      # <container-image>
+          ports: 
+            - containerPort: 8080   # <container-port>
+          env:
+            - name: PORT
+              value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emailservice                # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app: emailservice               # <app-label>
+  ports:
+    - protocol: TCP        # <protocol> (e.g., TCP)
+      port: 5000           # <service-port>
+      targetPort: 8080    # <container-port>
+  type: ClusterIP                # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 2
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendationservice               # <deployment-name>
+  namespace: microservices
+  labels:
+    app: recommendationservice           # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app: recommendationservice             # <app-label>
+  template:
+    metadata:
+      labels:
+        app: recommendationservice           # <app-label>
+    spec:
+      containers:
+        - name: service        # <container-name>
+          image: bigchuch/google-microservices:recommendationservice-v1      # <container-image>
+          ports:
+            - containerPort: 8080 # <container-port>
+          env:
+            - name: PORT
+              value: "8080" 
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"            # <service-name>
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  recommendationservice            # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app: recommendationservice            # <app-label>
+  ports:
+    - protocol:   TCP     # <protocol> (e.g., TCP)
+      port: 8080           # <service-port>
+      targetPort: 8080     # <container-port>
+  type: ClusterIP             # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 3
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productcatalogservice               # <deployment-name>
+  namespace: microservices
+  labels:
+    app: productcatalogservice               # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app: productcatalogservice            # <app-label>
+  template:
+    metadata:
+      labels:
+        app: productcatalogservice           # <app-label>
+    spec:
+      containers:
+        - name: service      # <container-name>
+          image: bigchuch/google-microservices:productcatalogservice-v1     # <container-image>
+          ports:
+            - containerPort: 3550  # <container-port>
+          env:
+            - name: PORT
+              value: "3550" 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productcatalogservice               # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app: productcatalogservice            # <app-label>
+  ports:
+    - protocol:  TCP      # <protocol> (e.g., TCP)
+      port: 3550           # <service-port>
+      targetPort: 3550      # <container-port>
+  type:  ClusterIP              # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 4
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice               # <deployment-name>
+  namespace: microservices
+  labels:
+    app: paymentservice           # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app: paymentservice            # <app-label>
+  template:
+    metadata:
+      labels:
+        app:  paymentservice          # <app-label>
+    spec:
+      containers:
+        - name: service       # <container-name>
+          image: bigchuch/google-microservices:paymentservice-v1      # <container-image>
+          ports: 
+            - containerPort: 50051
+          env:
+            - name: PORT
+              value: "50051"
+            - name: DISABLE_PROFILER
+              value: "1"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paymentservice               # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app: paymentservice              # <app-label>
+  ports:
+    - protocol:  TCP      # <protocol> (e.g., TCP)
+      port:  50051          # <service-port>
+      targetPort:  50051    # <container-port>
+  type:   ClusterIP             # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 5
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:   currencyservice             # <deployment-name>
+  namespace: microservices
+  labels:
+    app: currencyservice              # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app:  currencyservice           # <app-label>
+  template:
+    metadata:
+      labels:
+        app: currencyservice          # <app-label>
+    spec:
+      containers:
+        - name:   service     # <container-name>
+          image: bigchuch/google-microservices:currencyservice-v1      # <container-image>
+          ports:
+            - containerPort:  7000 # <container-port>
+          env:
+            - name: PORT
+              value: "7000"
+            - name: DISABLE_PROFILER
+              value: "1"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: currencyservice               # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app:  currencyservice             # <app-label>
+  ports:
+    - protocol:  TCP      # <protocol> (e.g., TCP)
+      port:  7000          # <service-port>
+      targetPort:  7000     # <container-port>
+  type:   ClusterIP             # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 6
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shippingservice                # <deployment-name>
+  namespace: microservices
+  labels:
+    app: shippingservice               # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app: shippingservice           # <app-label>
+  template:
+    metadata:
+      labels:
+        app: shippingservice          # <app-label>
+    spec:
+      containers:
+        - name:  service      # <container-name>
+          image: bigchuch/google-microservices:shippingservice-v1      # <container-image>
+          ports:
+            - containerPort: 50051  # <container-port>
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  shippingservice              # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app: shippingservice              # <app-label>
+  ports:
+    - protocol:   TCP     # <protocol> (e.g., TCP)
+      port: 50051            # <service-port>
+      targetPort: 50051     # <container-port>
+  type:     ClusterIP           # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 7
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  adservice              # <deployment-name>
+  namespace: microservices
+  labels:
+    app:  adservice             # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app:  adservice           # <app-label>
+  template:
+    metadata:
+      labels:
+        app:  adservice         # <app-label>
+    spec:
+      containers:
+        - name: service       # <container-name>
+          image: bigchuch/google-microservices:adservice-v1      # <container-image>
+          ports:
+            - containerPort: 9555  # <container-port>
+          env:
+            - name: PORT
+              value: "9555"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adservice               # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app:   adservice            # <app-label>
+  ports:
+    - protocol: TCP       # <protocol> (e.g., TCP)
+      port:  9555          # <service-port>
+      targetPort:  9555     # <container-port>
+  type:     ClusterIP           # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 8
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  cartservice              # <deployment-name>
+  namespace: microservices
+  labels:
+    app:  cartservice             # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app:  cartservice           # <app-label>
+  template:
+    metadata:
+      labels:
+        app:  cartservice         # <app-label>
+    spec:
+      containers:
+        - name:  service      # <container-name>
+          image: bigchuch/google-microservices:cartservice-v1      # <container-image>
+          ports:
+            - containerPort: 7070   # <container-port>
+          env:
+            - name: PORT
+              value: "7070"
+            - name: REDIS_ADDR
+              value: "redis-cart:6379"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartservice               # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app:  cartservice             # <app-label>
+  ports:
+    - protocol:   TCP     # <protocol> (e.g., TCP)
+      port:  7070     # <service-port>
+      targetPort:  7070    # <container-port>
+  type:     ClusterIP           # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 9
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:    redis-cart            # <deployment-name>
+  namespace: microservices
+  labels:
+    app:   redis-cart              # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app: redis-cart              # <app-label>
+  template:
+    metadata:
+      labels:
+        app:  redis-cart           # <app-label>
+    spec:
+      containers:
+        - name:  redis   # <container-name>
+          image:   redis:alpine    # <container-image>
+          ports:
+            - containerPort:   6379    # <container-port>
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  redis-cart                # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app:  redis-cart               # <app-label>
+  ports:
+    - protocol:   TCP     # <protocol> (e.g., TCP)
+      port:     6379       # <service-port>
+      targetPort:  6379    # <container-port>
+  type:     ClusterIP           # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 10
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:   checkoutservice             # <deployment-name>
+  namespace: microservices
+  labels:
+    app:  checkoutservice             # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app:   checkoutservice          # <app-label>
+  template:
+    metadata:
+      labels:
+        app:  checkoutservice         # <app-label>
+    spec:
+      containers:
+        - name:   service     # <container-name>
+          image:  bigchuch/google-microservices:checkoutservice-v1     # <container-image>
+          ports:
+            - containerPort: 5050  # <container-port>
+          env:
+            - name: PORT
+              value: "5050"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice:7070"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice:7000"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice:50051"
+            - name: EMAIL_SERVICE_ADDR
+              value: "emailservice:5000"
+            - name: PAYMENT_SERVICE_ADDR
+              value: "paymentservice:50051" 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  checkoutservice              # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app:  checkoutservice             # <app-label>
+  ports:
+    - protocol:     TCP     # <protocol> (e.g., TCP)
+      port:  5050          # <service-port>
+      targetPort:  5050    # <container-port>
+  type:   ClusterIP             # <ClusterIP | NodePort | LoadBalancer>
+
+# ========================================
+# Configuration Set 11
+# ========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend                # <deployment-name>
+  namespace: microservices
+  labels:
+    app:  frontend             # <app-label>
+spec:
+  replicas:            # <number-of-replicas>
+  selector:
+    matchLabels:
+      app:  frontend            # <app-label>
+  template:
+    metadata:
+      labels:
+        app:  frontend         # <app-label>
+    spec:
+      containers:
+        - name: service       # <container-name>
+          image: bigchuch/google-microservices:frontend-v1       # <container-image>
+          ports:
+            - containerPort: 8080  # <container-port>
+          env:
+            - name: PORT
+              value: "8080"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice:7070"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice:7000"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice:50051"
+            - name: CHECKOUT_SERVICE_ADDR
+              value: "checkoutservice:5050"
+            - name : RECOMMENDATION_SERVICE_ADDR
+              value: "recommendationservice:8080"
+            - name : AD_SERVICE_ADDR
+              value: "adservice:9555"
+            - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+              value: "shoppingassistantservice:8080"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend               # <service-name>
+  namespace: microservices
+spec:
+  selector:
+    app: frontend              # <app-label>
+  ports:
+    - protocol:  TCP      # <protocol> (e.g., TCP)
+      port: 80           # <service-port>
+      targetPort:  8080    # <container-port>
+      nodePort: 30007
+  type:  NodePort              # <ClusterIP | NodePort | LoadBalancer>

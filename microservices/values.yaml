@@ -1,0 +1,14 @@
+appName: servicename
+appImage: bigchuch/google-microservices
+appVersion: v1
+appReplicas: 1
+containerPort: 8080
+containerEnvVars:
+  - name: ENV_VAR_ONE
+    value: "valueone"
+  - name: ENV_VAR_TWO
+    value: "valuetwo"
+nameSpace: microservices
+
+servicePort: 8080
+serviceType: ClusterIP
