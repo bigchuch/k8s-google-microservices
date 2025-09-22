@@ -12,5 +12,5 @@ containerEnvVars:
  
 nameSpace: microservices
 
-servicePort: 8080
+servicePort: 7000
 serviceType: ClusterIP
