@@ -1,6 +1,6 @@
 appName: redis-cart 
-appImage: bigchuch/google-microservices
-appVersion: v1
+appImage: redis
+appVersion: alpine
 appReplicas: 1
 containerPort: 6379
 containerEnvVars: []
