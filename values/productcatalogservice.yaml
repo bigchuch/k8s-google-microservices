@@ -2,7 +2,7 @@ appName: productcatalogservice
 appImage: bigchuch/google-microservices
 appVersion: v1
 appReplicas: 1
-containerPort: 3350
+containerPort: 3550
 containerEnvVars:
 - name: PORT
   value: "3550" 
