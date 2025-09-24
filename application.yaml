@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: my-app
+  name: microservices-app
   namespace: argocd
 spec:
   project: default
@@ -9,6 +9,8 @@ spec:
     repoURL: https://github.com/bigchuch/k8s-google-microservices.git
     targetRevision: HEAD
     path: .
+    plugin:
+      name: helmfile
   destination:
     server: https://kubernetes.default.svc
     namespace: microservices
@@ -16,6 +18,7 @@ spec:
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
+    - ServerSideApply=true
     
     automated:
       prune: true
