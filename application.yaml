@@ -8,9 +8,7 @@ spec:
   source:
     repoURL: https://github.com/bigchuch/k8s-google-microservices.git
     targetRevision: HEAD
-    path: k8s-google-microservices
-    plugin:
-      name:  helmfile 
+    path: .
   destination:
     server: https://kubernetes.default.svc
     namespace: microservices
