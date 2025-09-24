@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/bigchuch/k8s-google-microservices.git
     targetRevision: HEAD
-    path: .
+    path: k8s-google-microservices
     plugin:
       name:  helmfile 
   destination:
