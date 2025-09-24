@@ -1,4 +1,4 @@
-apiversion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: my-app
@@ -13,7 +13,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: microservices
 
- syncPolicy:
+  syncPolicy:
     syncOptions:
     - CreateNamespace=true
     
