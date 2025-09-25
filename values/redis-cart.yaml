@@ -1,6 +1,6 @@
-appName: redis
-appImage: redis:alpine
-appVersion: lastest
+appName: redis-cart
+appImage: redis
+appVersion: alpine
 appReplicas: 1
 containerPort: 6379
 containerEnvVars: []
