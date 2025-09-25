@@ -1,0 +1,41 @@
+global:
+  namespace: microservices-staging
+  imageTag: v1
+  replicas: 2
+  environment: staging
+
+# Environment-specific overrides for staging
+redis-cart:
+  appReplicas: 2
+
+adservice:
+  appReplicas: 2
+
+cartservice:
+  appReplicas: 2
+
+checkoutservice:
+  appReplicas: 2
+
+currencyservice:
+  appReplicas: 2
+
+emailservice:
+  appReplicas: 2
+
+frontend:
+  appReplicas: 2
+  serviceType: NodePort
+  nodePort: 30008
+
+paymentservice:
+  appReplicas: 2
+
+productcatalogservice:
+  appReplicas: 2
+
+recommendationservice:
+  appReplicas: 2
+
+shippingservice:
+  appReplicas: 2

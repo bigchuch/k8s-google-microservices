@@ -1,0 +1,85 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# Helm
+*.tgz
+charts/*.tgz
+packages/
+
+# Helmfile
+helmfile.lock
+
+# Kubernetes
+*.kubeconfig
+kubeconfig*
+
+# Environment specific secrets (if any)
+secrets/
+*.secret
+*.key
+*.pem
+
+# Logs
+*.log
+logs/
+
+# Node modules (if using any JS tools)
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Go
+vendor/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build outputs
+dist/
+build/
+output/
+
+# Coverage reports
+coverage.txt
+*.cover
+*.py,cover
+.coverage
+.coverage.*
+
+# Test artifacts
+.pytest_cache/
+.tox/
+
+# Documentation build
+_build/
+.doctrees/

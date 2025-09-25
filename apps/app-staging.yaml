@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservices-staging
+  namespace: argocd
+  labels:
+    environment: staging
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/bigchuch/k8s-google-microservices.git
+    targetRevision: HEAD
+    path: .
+    plugin:
+      name: helmfile
+      env:
+        - name: HELMFILE_ENVIRONMENT
+          value: staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: microservices-staging
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    automated:
+      prune: true
+      selfHeal: true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: microservices-staging
+  labels:
+    environment: staging
+    managed-by: argocd

@@ -1,0 +1,41 @@
+global:
+  namespace: microservices-dev
+  imageTag: v1
+  replicas: 1
+  environment: dev
+
+# Environment-specific overrides for development
+redis-cart:
+  appReplicas: 1
+
+adservice:
+  appReplicas: 1
+
+cartservice:
+  appReplicas: 1
+
+checkoutservice:
+  appReplicas: 1
+
+currencyservice:
+  appReplicas: 1
+
+emailservice:
+  appReplicas: 1
+
+frontend:
+  appReplicas: 1
+  serviceType: NodePort
+  nodePort: 30007
+
+paymentservice:
+  appReplicas: 1
+
+productcatalogservice:
+  appReplicas: 1
+
+recommendationservice:
+  appReplicas: 1
+
+shippingservice:
+  appReplicas: 1

@@ -1,0 +1,115 @@
+environments:
+  dev:
+    values:
+      - helmfile/environments/dev.yaml
+  staging:
+    values:
+      - helmfile/environments/staging.yaml
+  prod:
+    values:
+      - helmfile/environments/prod.yaml
+
+---
+releases:
+- name: redis-cart
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: redis-cart
+    - name: appImage
+      value: redis
+    - name: appVersion
+      value: alpine
+
+- name: adservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: adservice
+
+- name: cartservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: cartservice
+
+- name: checkoutservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: checkoutservice
+
+- name: currencyservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: currencyservice
+
+- name: emailservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: emailservice
+
+- name: frontend
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: frontend
+
+- name: paymentservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: paymentservice
+
+- name: productcatalogservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: productcatalogservice
+
+- name: recommendationservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: recommendationservice
+
+- name: shippingservice
+  chart: charts/microservices
+  namespace: {{ .Values.global.namespace }}
+  values:
+    - values/{{ .Environment.Name }}.yaml
+  set:
+    - name: appName
+      value: shippingservice

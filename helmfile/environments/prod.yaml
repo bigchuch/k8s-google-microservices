@@ -1,0 +1,40 @@
+global:
+  namespace: microservices-prod
+  imageTag: v1
+  replicas: 3
+  environment: prod
+
+# Environment-specific overrides for production
+redis-cart:
+  appReplicas: 3
+
+adservice:
+  appReplicas: 3
+
+cartservice:
+  appReplicas: 3
+
+checkoutservice:
+  appReplicas: 3
+
+currencyservice:
+  appReplicas: 3
+
+emailservice:
+  appReplicas: 3
+
+frontend:
+  appReplicas: 3
+  serviceType: LoadBalancer
+
+paymentservice:
+  appReplicas: 3
+
+productcatalogservice:
+  appReplicas: 3
+
+recommendationservice:
+  appReplicas: 3
+
+shippingservice:
+  appReplicas: 3

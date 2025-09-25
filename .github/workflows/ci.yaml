@@ -1,0 +1,150 @@
+# name: CI/CD Pipeline
+
+# on:
+#   push:
+#     branches: [ main, develop ]
+#   pull_request:
+#     branches: [ main ]
+
+# env:
+#   HELM_VERSION: v3.12.0
+#   HELMFILE_VERSION: v0.157.0
+
+# jobs:
+#   lint-and-validate:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v4
+
+#     - name: Set up Helm
+#       uses: azure/setup-helm@v3
+#       with:
+#         version: ${{ env.HELM_VERSION }}
+
+#     - name: Set up Helmfile
+#       run: |
+#         wget https://github.com/helmfile/helmfile/releases/download/${{ env.HELMFILE_VERSION }}/helmfile_${{ env.HELMFILE_VERSION }}_linux_amd64.tar.gz
+#         tar -xzf helmfile_${{ env.HELMFILE_VERSION }}_linux_amd64.tar.gz
+#         sudo mv helmfile /usr/local/bin/
+#         helmfile version
+
+#     - name: Lint Helm Charts
+#       run: |
+#         helm lint charts/microservices/
+
+#     - name: Validate Helm Templates - Dev
+#       run: |
+#         helm template microservices charts/microservices/ \
+#           --values values/dev.yaml \
+#           --output-dir ./output/dev
+        
+#     - name: Validate Helm Templates - Staging  
+#       run: |
+#         helm template microservices charts/microservices/ \
+#           --values values/staging.yaml \
+#           --output-dir ./output/staging
+
+#     - name: Validate Helm Templates - Prod
+#       run: |
+#         helm template microservices charts/microservices/ \
+#           --values values/prod.yaml \
+#           --output-dir ./output/prod
+
+#     - name: Validate Helmfile Templates
+#       run: |
+#         # Test helmfile template generation for all environments
+#         helmfile -f helmfile/helmfile.yaml -e dev template > /dev/null
+#         helmfile -f helmfile/helmfile.yaml -e staging template > /dev/null  
+#         helmfile -f helmfile/helmfile.yaml -e prod template > /dev/null
+
+#     - name: Check Kubernetes Manifests
+#       run: |
+#         # Install kubeval for manifest validation
+#         wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+#         tar xf kubeval-linux-amd64.tar.gz
+#         sudo mv kubeval /usr/local/bin
+        
+#         # Validate generated manifests
+#         find ./output -name "*.yaml" -exec kubeval {} \;
+
+#     - name: Security Scan with Checkov
+#       uses: bridgecrewio/checkov-action@master
+#       with:
+#         directory: .
+#         framework: kubernetes
+#         output_format: sarif
+#         output_file_path: reports/results.sarif
+        
+#     - name: Upload Checkov results to GitHub Advanced Security
+#       uses: github/codeql-action/upload-sarif@v2
+#       if: always()
+#       with:
+#         sarif_file: reports/results.sarif
+
+#   test-deployment:
+#     runs-on: ubuntu-latest
+#     needs: lint-and-validate
+#     strategy:
+#       matrix:
+#         environment: [dev, staging, prod]
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v4
+
+#     - name: Set up Helm
+#       uses: azure/setup-helm@v3
+#       with:
+#         version: ${{ env.HELM_VERSION }}
+
+#     - name: Set up Helmfile
+#       run: |
+#         wget https://github.com/helmfile/helmfile/releases/download/${{ env.HELMFILE_VERSION }}/helmfile_${{ env.HELMFILE_VERSION }}_linux_amd64.tar.gz
+#         tar -xzf helmfile_${{ env.HELMFILE_VERSION }}_linux_amd64.tar.gz
+#         sudo mv helmfile /usr/local/bin/
+
+#     - name: Create kind cluster
+#       uses: helm/kind-action@v1.8.0
+#       with:
+#         cluster_name: test-cluster
+
+#     - name: Test Deployment - ${{ matrix.environment }}
+#       run: |
+#         # Dry run deployment
+#         helmfile -f helmfile/helmfile.yaml -e ${{ matrix.environment }} diff
+        
+#         # Test actual deployment
+#         helmfile -f helmfile/helmfile.yaml -e ${{ matrix.environment }} sync
+        
+#         # Wait for pods to be ready
+#         kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=frontend -n microservices-${{ matrix.environment }} --timeout=300s
+        
+#         # Basic smoke test
+#         kubectl get pods -n microservices-${{ matrix.environment }}
+#         kubectl get svc -n microservices-${{ matrix.environment }}
+
+#     - name: Cleanup
+#       if: always()
+#       run: |
+#         helmfile -f helmfile/helmfile.yaml -e ${{ matrix.environment }} destroy || true
+#         kubectl delete namespace microservices-${{ matrix.environment }} --ignore-not-found=true
+
+#   release:
+#     runs-on: ubuntu-latest
+#     needs: [lint-and-validate, test-deployment]
+#     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v4
+
+#     - name: Package Helm Chart
+#       run: |
+#         helm package charts/microservices/ --destination ./packages/
+
+#     - name: Create Release
+#       uses: softprops/action-gh-release@v1
+#       if: startsWith(github.ref, 'refs/tags/')
+#       with:
+#         files: ./packages/*.tgz
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

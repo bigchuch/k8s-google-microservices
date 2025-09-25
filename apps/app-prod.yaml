@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservices-prod
+  namespace: argocd
+  labels:
+    environment: prod
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/bigchuch/k8s-google-microservices.git
+    targetRevision: HEAD
+    path: .
+    plugin:
+      name: helmfile
+      env:
+        - name: HELMFILE_ENVIRONMENT
+          value: prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: microservices-prod
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    # Manual sync for production - no automated sync for safety
+    # automated:
+    #   prune: true
+    #   selfHeal: true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: microservices-prod
+  labels:
+    environment: prod
+    managed-by: argocd
