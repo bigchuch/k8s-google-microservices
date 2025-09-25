@@ -1,42 +1,57 @@
+{{- range $serviceName, $service := .Values.services }}
+{{- if $service.enabled }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appName }}
-  namespace: {{ .Values.nameSpace }}
+  name: {{ $service.appName }}
+  namespace: {{ $.Values.global.namespace }}
   labels:
-    app: {{ .Values.appName }}
-    version: {{ .Values.appVersion }}
+    app: {{ $service.appName }}
+    version: {{ $service.appVersion }}
+    environment: {{ $.Values.global.environment }}
 spec:
-  replicas: {{ .Values.appReplicas }}
+  replicas: {{ $service.appReplicas }}
   selector:
     matchLabels:
-      app: {{ .Values.appName }}
+      app: {{ $service.appName }}
   template:
     metadata:
       labels:
-        app: {{ .Values.appName }}
+        app: {{ $service.appName }}
+        version: {{ $service.appVersion }}
+        environment: {{ $.Values.global.environment }}
     spec:
       containers:
-        - name: {{ .Values.appName }}
-          {{- if eq .Values.appName "redis-cart" }}
-          image: "{{ .Values.appImage }}:{{ .Values.appVersion }}"
+        - name: {{ $service.appName }}
+          {{- if eq $service.appName "redis-cart" }}
+          image: "{{ $service.appImage }}:{{ $service.appVersion }}"
           {{- else }}
-          image: "{{ .Values.appImage }}:{{ .Values.appName }}-{{ .Values.appVersion }}"
+          image: "{{ $service.appImage }}:{{ $service.appName }}-{{ $service.appVersion }}"
           {{- end }}
           ports:
-            - containerPort: {{ .Values.containerPort }}
-          {{- if .Values.containerEnvVars }}
+            - containerPort: {{ $service.containerPort }}
+          {{- if $service.containerEnvVars }}
           env:
-          {{- range .Values.containerEnvVars }}
+          {{- range $service.containerEnvVars }}
             - name: {{ .name }}
               value: {{ .value | quote }}
           {{- end }}
           {{- end }}
-          {{- if .Values.volumeMounts }}
+          {{- if $service.volumeMounts }}
           volumeMounts:
-          {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- toYaml $service.volumeMounts | nindent 12 }}
           {{- end }}
-      {{- if .Values.volumes }}
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      {{- if $service.volumes }}
       volumes:
-      {{- toYaml .Values.volumes | nindent 8 }}
+      {{- toYaml $service.volumes | nindent 8 }}
       {{- end }}
+{{- end }}
+{{- end }}

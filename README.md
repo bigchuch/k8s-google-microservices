@@ -1,6 +1,6 @@
 # Google Cloud Microservices Demo - Kubernetes Deployment
 
-This repository contains a complete GitOps workflow for deploying the Google Cloud microservices demo application to Kubernetes using Helm, Helmfile, and ArgoCD.
+This repository contains a complete GitOps workflow for deploying the Google Cloud microservices demo application to Kubernetes using ArgoCD with direct Helm chart integration.
 
 ## 🏗️ Architecture
 
@@ -24,18 +24,30 @@ The application consists of 11 microservices:
 
 - Kubernetes cluster (local or cloud)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) configured
-- [Helm v3+](https://helm.sh/docs/intro/install/)
-- [Helmfile](https://github.com/helmfile/helmfile#installation)
+- [Helm v3+](https://helm.sh/docs/intro/install/) (optional, for direct Helm deployment)
+- [ArgoCD](https://argo-cd.readthedocs.io/en/stable/getting_started/) installed in your cluster
+- [ArgoCD CLI](https://argo-cd.readthedocs.io/en/stable/cli_installation/) (optional, for advanced operations)
 
 ### Deploy to Development
 
+#### Option 1: ArgoCD (Recommended)
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd k8s-google-microservices
+cd micro-services
 
-# Deploy to development environment
+# Deploy using ArgoCD (default method)
 ./scripts/install.sh dev
+
+# Access the application
+kubectl port-forward -n microservices-dev svc/frontend 8080:80
+# Open http://localhost:8080
+```
+
+#### Option 2: Direct Helm
+```bash
+# Deploy using Helm directly
+./scripts/install.sh dev helm
 
 # Access the application
 kubectl port-forward -n microservices-dev svc/frontend 8080:80
@@ -45,7 +57,11 @@ kubectl port-forward -n microservices-dev svc/frontend 8080:80
 ### Deploy to Staging
 
 ```bash
+# ArgoCD deployment (recommended)
 ./scripts/install.sh staging
+
+# Or direct Helm deployment
+./scripts/install.sh staging helm
 
 # Access via NodePort
 kubectl get nodes -o wide  # Get node IP
@@ -55,7 +71,11 @@ kubectl get nodes -o wide  # Get node IP
 ### Deploy to Production
 
 ```bash
+# ArgoCD deployment (recommended)
 ./scripts/install.sh prod
+
+# Or direct Helm deployment
+./scripts/install.sh prod helm
 
 # Get LoadBalancer external IP
 kubectl get svc -n microservices-prod frontend
@@ -65,33 +85,33 @@ kubectl get svc -n microservices-prod frontend
 ## 📁 Repository Structure
 
 ```
-k8s-google-microservices/
-├── charts/                          # Reusable Helm charts
-│   └── microservices/               # Main umbrella chart
-│       ├── Chart.yaml
-│       ├── values.yaml              # Default values
+micro-services/
+├── charts/                          # Helm charts
+│   └── microservices/               # Umbrella chart for all services
+│       ├── Chart.yaml               # Chart metadata
+│       ├── values.yaml              # Default values for all services
 │       └── templates/               # Kubernetes manifests
-├── values/                          # Environment-specific values
+│           ├── deployment.yaml      # Deployment template
+│           └── service.yaml         # Service template
+├── values/                          # Environment-specific value overlays
 │   ├── dev.yaml                     # Development configuration
 │   ├── staging.yaml                 # Staging configuration
 │   └── prod.yaml                    # Production configuration
-├── apps/                            # ArgoCD Applications
-│   ├── app-dev.yaml
-│   ├── app-staging.yaml
-│   └── app-prod.yaml
-├── helmfile/                        # Helmfile orchestration
-│   ├── helmfile.yaml
-│   └── environments/
-│       ├── dev.yaml
-│       ├── staging.yaml
-│       └── prod.yaml
-├── scripts/                         # Helper scripts
-│   ├── install.sh                   # Installation script
-│   └── uninstall.sh                 # Cleanup script
+├── apps/                            # ArgoCD Application manifests
+│   ├── app-dev.yaml                 # Development ArgoCD app
+│   ├── app-staging.yaml             # Staging ArgoCD app
+│   └── app-prod.yaml                # Production ArgoCD app
+├── scripts/                         # Management scripts
+│   ├── install.sh                   # Installation script (ArgoCD/Helm)
+│   ├── uninstall.sh                 # Cleanup script
+│   └── argocd-manage.sh             # ArgoCD operations script
 ├── .github/workflows/               # CI/CD pipelines
 │   └── ci.yaml
-└── docs/                           # Documentation
-    └── README-ops.md               # Operations guide
+├── docs/                           # Documentation
+│   └── README-ops.md               # Operations guide
+└── helmfile/                        # Legacy Helmfile (deprecated)
+    ├── helmfile.yaml
+    └── environments/
 ```
 
 ## 🌍 Environment Configurations
@@ -106,11 +126,32 @@ k8s-google-microservices/
 
 ### Installation
 ```bash
-# Install specific environment
-./scripts/install.sh [dev|staging|prod]
+# Install using ArgoCD (recommended)
+./scripts/install.sh [dev|staging|prod] argocd
 
-# Default is dev if no environment specified
+# Install using Helm directly
+./scripts/install.sh [dev|staging|prod] helm
+
+# Default is dev environment with ArgoCD method
 ./scripts/install.sh
+```
+
+### ArgoCD Operations
+```bash
+# Check ArgoCD application status
+./scripts/argocd-manage.sh status [dev|staging|prod]
+
+# Sync application with Git repository
+./scripts/argocd-manage.sh sync [dev|staging|prod]
+
+# View application logs
+./scripts/argocd-manage.sh logs [dev|staging|prod]
+
+# Refresh application (re-read Git)
+./scripts/argocd-manage.sh refresh [dev|staging|prod]
+
+# Show differences between Git and cluster
+./scripts/argocd-manage.sh diff [dev|staging|prod]
 ```
 
 ### Monitoring
@@ -118,7 +159,10 @@ k8s-google-microservices/
 # Check pod status
 kubectl get pods -n microservices-<env>
 
-# View logs
+# View service status
+kubectl get svc -n microservices-<env>
+
+# View logs for specific service
 kubectl logs -n microservices-<env> deployment/<service-name>
 
 # Port forward for local access
@@ -127,26 +171,47 @@ kubectl port-forward -n microservices-<env> svc/frontend 8080:80
 
 ### Cleanup
 ```bash
-# Uninstall specific environment
-./scripts/uninstall.sh [dev|staging|prod]
+# Uninstall using ArgoCD
+./scripts/uninstall.sh [dev|staging|prod] argocd
+
+# Uninstall using Helm directly
+./scripts/uninstall.sh [dev|staging|prod] helm
 
 # This will prompt to delete the namespace
 ```
 
 ## 🔄 GitOps with ArgoCD
 
-Deploy ArgoCD applications for automated GitOps:
+This repository is designed for GitOps workflows using ArgoCD with direct Helm chart integration. Each environment has its own ArgoCD Application that monitors this Git repository and automatically deploys changes.
+
+### ArgoCD Application Setup
 
 ```bash
-# Apply ArgoCD application for development
+# Apply ArgoCD application for development (auto-sync enabled)
 kubectl apply -f apps/app-dev.yaml
 
-# Apply ArgoCD application for staging
+# Apply ArgoCD application for staging (auto-sync enabled)
 kubectl apply -f apps/app-staging.yaml
 
-# Apply ArgoCD application for production (manual sync)
+# Apply ArgoCD application for production (manual sync for safety)
 kubectl apply -f apps/app-prod.yaml
 ```
+
+### GitOps Workflow
+
+1. **Make Changes**: Update Helm chart values or templates
+2. **Commit & Push**: Changes to this repository
+3. **Auto-Sync**: Dev and staging environments automatically sync
+4. **Manual Sync**: Production requires manual approval via ArgoCD UI or CLI
+
+### ArgoCD Application Configuration
+
+Each environment uses:
+- **Source**: This Git repository
+- **Path**: `charts/microservices` (umbrella Helm chart)
+- **Values**: Environment-specific files from `values/` directory
+- **Namespace**: `microservices-{environment}`
+- **Sync Policy**: Auto for dev/staging, manual for prod
 
 ## 🧪 CI/CD Pipeline
 
@@ -167,15 +232,34 @@ The repository includes a comprehensive CI/CD pipeline that:
 
 ### Adding New Services
 
-1. Add service configuration to `charts/microservices/values.yaml`
-2. Create deployment and service templates in `charts/microservices/templates/`
-3. Update environment-specific values in `values/` directory
-4. Test with `helm template` and deploy
+1. Add service configuration to `charts/microservices/values.yaml`:
+```yaml
+services:
+  your-new-service:
+    enabled: true
+    appName: your-new-service
+    appImage: your-registry/your-image
+    appVersion: v1.0.0
+    appReplicas: 1
+    containerPort: 8080
+    # ... other configuration
+```
+
+2. The existing templates in `charts/microservices/templates/` will automatically handle the new service
+3. Update environment-specific values in `values/` directory if needed
+4. Test with `helm template charts/microservices --values values/dev.yaml`
+5. Deploy with `./scripts/install.sh dev` or commit for GitOps
 
 ### Modifying Environments
 
-1. Edit environment-specific files in `values/` or `helmfile/environments/`
-2. Apply changes with `./scripts/install.sh <environment>`
+1. Edit environment-specific files in `values/` directory:
+   - `values/dev.yaml` - Development overrides
+   - `values/staging.yaml` - Staging overrides  
+   - `values/prod.yaml` - Production overrides
+
+2. Apply changes:
+   - **ArgoCD**: Commit and push (auto-sync for dev/staging)
+   - **Direct Helm**: `./scripts/install.sh <environment> helm`
 
 ### Custom Images
 
@@ -184,9 +268,31 @@ Update image configurations in the appropriate values files:
 ```yaml
 services:
   your-service:
+    enabled: true
     appName: your-service
     appImage: your-registry/your-image
     appVersion: your-tag
+    appReplicas: 2
+    containerPort: 8080
+    containerEnvVars:
+      - name: ENV_VAR
+        value: "custom-value"
+```
+
+### Environment-Specific Overrides
+
+```yaml
+# values/prod.yaml
+global:
+  environment: prod
+  namespace: microservices-prod
+  imageTag: v1.2.0
+  replicas: 3
+
+services:
+  frontend:
+    appReplicas: 5  # Override for production
+    serviceType: LoadBalancer
 ```
 
 ## 🔒 Security

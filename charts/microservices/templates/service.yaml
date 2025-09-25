@@ -1,18 +1,23 @@
+{{- range $serviceName, $service := .Values.services }}
+{{- if $service.enabled }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appName}}
-  namespace: {{ .Values.nameSpace }}
+  name: {{ $service.appName }}
+  namespace: {{ $.Values.global.namespace }}
   labels:
-    app: {{ .Values.appName}}
+    app: {{ $service.appName }}
+    environment: {{ $.Values.global.environment }}
 spec:
-  type: {{ .Values.serviceType}}
-  selector:
-    app: {{ .Values.appName}}
+  type: {{ $service.serviceType }}
   ports:
-    - protocol: TCP
-      port: {{ .Values.servicePort}}
-      targetPort: {{ .Values.containerPort}}
-      {{- if and (eq .Values.serviceType "NodePort") .Values.nodePort }}
-      nodePort: {{ .Values.nodePort }}
+    - port: {{ $service.servicePort }}
+      targetPort: {{ $service.containerPort }}
+      {{- if eq $service.serviceType "NodePort" }}
+      nodePort: {{ $service.nodePort }}
       {{- end }}
+  selector:
+    app: {{ $service.appName }}
+{{- end }}
+{{- end }}

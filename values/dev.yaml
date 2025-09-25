@@ -5,196 +5,187 @@ global:
   namespace: microservices-dev
   imageTag: v1
   replicas: 1
+  environment: dev
 
-# Redis Cart Service
-redis-cart:
-  appName: redis-cart
-  appImage: redis
-  appVersion: alpine
-  appReplicas: 1
-  containerPort: 6379
-  containerEnvVars: []
-  volumeMounts:
-    - name: redis-cart
-      mountPath: /data
-  volumes:
-    - name: redis-cart
-      emptyDir: {}
-  nameSpace: microservices-dev
-  servicePort: 6379
-  serviceType: ClusterIP
+services:
+  redis-cart:
+    enabled: true
+    appName: redis-cart
+    appImage: redis
+    appVersion: alpine
+    appReplicas: 1
+    containerPort: 6379
+    containerEnvVars: []
+    volumeMounts:
+      - name: redis-cart
+        mountPath: /data
+    volumes:
+      - name: redis-cart
+        emptyDir: {}
+    servicePort: 6379
+    serviceType: ClusterIP
 
-# Ad Service
-adservice:
-  appName: adservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 9555
-  containerEnvVars:
-    - name: PORT
-      value: "9555"
-  nameSpace: microservices-dev
-  servicePort: 9555
-  serviceType: ClusterIP
+  adservice:
+    enabled: true
+    appName: adservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 9555
+    containerEnvVars:
+      - name: PORT
+        value: "9555"
+    servicePort: 9555
+    serviceType: ClusterIP
 
-# Cart Service
-cartservice:
-  appName: cartservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 7070
-  containerEnvVars:
-    - name: PORT
-      value: "7070"
-    - name: REDIS_ADDR
-      value: "redis-cart:6379"
-  nameSpace: microservices-dev
-  servicePort: 7070
-  serviceType: ClusterIP
+  cartservice:
+    enabled: true
+    appName: cartservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 7070
+    containerEnvVars:
+      - name: PORT
+        value: "7070"
+      - name: REDIS_ADDR
+        value: "redis-cart:6379"
+    servicePort: 7070
+    serviceType: ClusterIP
 
-# Checkout Service
-checkoutservice:
-  appName: checkoutservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 5050
-  containerEnvVars:
-    - name: PORT
-      value: "5050"
-    - name: PRODUCT_CATALOG_SERVICE_ADDR
-      value: "productcatalogservice:3550"
-    - name: CART_SERVICE_ADDR
-      value: "cartservice:7070"
-    - name: CURRENCY_SERVICE_ADDR
-      value: "currencyservice:7000"
-    - name: SHIPPING_SERVICE_ADDR
-      value: "shippingservice:50051"
-    - name: EMAIL_SERVICE_ADDR
-      value: "emailservice:5000"
-    - name: PAYMENT_SERVICE_ADDR
-      value: "paymentservice:50051"
-  nameSpace: microservices-dev
-  servicePort: 5050
-  serviceType: ClusterIP
+  checkoutservice:
+    enabled: true
+    appName: checkoutservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 5050
+    containerEnvVars:
+      - name: PORT
+        value: "5050"
+      - name: PRODUCT_CATALOG_SERVICE_ADDR
+        value: "productcatalogservice:3550"
+      - name: CART_SERVICE_ADDR
+        value: "cartservice:7070"
+      - name: CURRENCY_SERVICE_ADDR
+        value: "currencyservice:7000"
+      - name: SHIPPING_SERVICE_ADDR
+        value: "shippingservice:50051"
+      - name: EMAIL_SERVICE_ADDR
+        value: "emailservice:5000"
+      - name: PAYMENT_SERVICE_ADDR
+        value: "paymentservice:50051"
+    servicePort: 5050
+    serviceType: ClusterIP
 
-# Currency Service
-currencyservice:
-  appName: currencyservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 7000
-  containerEnvVars:
-    - name: PORT
-      value: "7000"
-    - name: DISABLE_PROFILER
-      value: "1"
-  nameSpace: microservices-dev
-  servicePort: 7000
-  serviceType: ClusterIP
+  currencyservice:
+    enabled: true
+    appName: currencyservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 7000
+    containerEnvVars:
+      - name: PORT
+        value: "7000"
+      - name: DISABLE_PROFILER
+        value: "1"
+    servicePort: 7000
+    serviceType: ClusterIP
 
-# Email Service
-emailservice:
-  appName: emailservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 8080
-  containerEnvVars:
-    - name: PORT
-      value: "8080"
-  nameSpace: microservices-dev
-  servicePort: 5000
-  serviceType: ClusterIP
+  emailservice:
+    enabled: true
+    appName: emailservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 8080
+    containerEnvVars:
+      - name: PORT
+        value: "8080"
+    servicePort: 5000
+    serviceType: ClusterIP
 
-# Frontend Service
-frontend:
-  appName: frontend
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 8080
-  containerEnvVars:
-    - name: PORT
-      value: "8080"
-    - name: PRODUCT_CATALOG_SERVICE_ADDR
-      value: "productcatalogservice:3550"
-    - name: CART_SERVICE_ADDR
-      value: "cartservice:7070"
-    - name: CURRENCY_SERVICE_ADDR
-      value: "currencyservice:7000"
-    - name: SHIPPING_SERVICE_ADDR
-      value: "shippingservice:50051"
-    - name: CHECKOUT_SERVICE_ADDR
-      value: "checkoutservice:5050"
-    - name: RECOMMENDATION_SERVICE_ADDR
-      value: "recommendationservice:8080"
-    - name: AD_SERVICE_ADDR
-      value: "adservice:9555"
-    - name: SHOPPING_ASSISTANT_SERVICE_ADDR
-      value: "shoppingassistantservice:8080"
-  nameSpace: microservices-dev
-  servicePort: 80
-  serviceType: NodePort
-  nodePort: 30007
+  frontend:
+    enabled: true
+    appName: frontend
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 8080
+    containerEnvVars:
+      - name: PORT
+        value: "8080"
+      - name: PRODUCT_CATALOG_SERVICE_ADDR
+        value: "productcatalogservice:3550"
+      - name: CART_SERVICE_ADDR
+        value: "cartservice:7070"
+      - name: CURRENCY_SERVICE_ADDR
+        value: "currencyservice:7000"
+      - name: SHIPPING_SERVICE_ADDR
+        value: "shippingservice:50051"
+      - name: CHECKOUT_SERVICE_ADDR
+        value: "checkoutservice:5050"
+      - name: RECOMMENDATION_SERVICE_ADDR
+        value: "recommendationservice:8080"
+      - name: AD_SERVICE_ADDR
+        value: "adservice:9555"
+      - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+        value: "shoppingassistantservice:8080"
+    servicePort: 80
+    serviceType: NodePort
+    nodePort: 30007
 
-# Payment Service
-paymentservice:
-  appName: paymentservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 50051
-  containerEnvVars:
-    - name: PORT
-      value: "50051"
-    - name: DISABLE_PROFILER
-      value: "1"
-  nameSpace: microservices-dev
-  servicePort: 50051
-  serviceType: ClusterIP
+  paymentservice:
+    enabled: true
+    appName: paymentservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 50051
+    containerEnvVars:
+      - name: PORT
+        value: "50051"
+      - name: DISABLE_PROFILER
+        value: "1"
+    servicePort: 50051
+    serviceType: ClusterIP
 
-# Product Catalog Service
-productcatalogservice:
-  appName: productcatalogservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 3550
-  containerEnvVars:
-    - name: PORT
-      value: "3550"
-  nameSpace: microservices-dev
-  servicePort: 3550
-  serviceType: ClusterIP
+  productcatalogservice:
+    enabled: true
+    appName: productcatalogservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 3550
+    containerEnvVars:
+      - name: PORT
+        value: "3550"
+    servicePort: 3550
+    serviceType: ClusterIP
 
-# Recommendation Service
-recommendationservice:
-  appName: recommendationservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 8080
-  containerEnvVars:
-    - name: PORT
-      value: "8080"
-    - name: PRODUCT_CATALOG_SERVICE_ADDR
-      value: "productcatalogservice:3550"
-  nameSpace: microservices-dev
-  servicePort: 8080
-  serviceType: ClusterIP
+  recommendationservice:
+    enabled: true
+    appName: recommendationservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 8080
+    containerEnvVars:
+      - name: PORT
+        value: "8080"
+      - name: PRODUCT_CATALOG_SERVICE_ADDR
+        value: "productcatalogservice:3550"
+    servicePort: 8080
+    serviceType: ClusterIP
 
-# Shipping Service
-shippingservice:
-  appName: shippingservice
-  appImage: bigchuch/google-microservices
-  appVersion: v1
-  appReplicas: 1
-  containerPort: 50051
-  containerEnvVars: []
-  nameSpace: microservices-dev
-  servicePort: 50051
-  serviceType: ClusterIP
+  shippingservice:
+    enabled: true
+    appName: shippingservice
+    appImage: bigchuch/google-microservices
+    appVersion: v1
+    appReplicas: 1
+    containerPort: 50051
+    containerEnvVars: []
+    servicePort: 50051
+    serviceType: ClusterIP

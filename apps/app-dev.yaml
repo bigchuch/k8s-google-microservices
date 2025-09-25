@@ -10,12 +10,15 @@ spec:
   source:
     repoURL: https://github.com/bigchuch/k8s-google-microservices.git
     targetRevision: HEAD
-    path: .
-    plugin:
-      name: helmfile
-      env:
-        - name: HELMFILE_ENVIRONMENT
+    path: charts/microservices
+    helm:
+      valueFiles:
+        - ../../values/dev.yaml
+      parameters:
+        - name: global.environment
           value: dev
+        - name: global.namespace
+          value: microservices-dev
   destination:
     server: https://kubernetes.default.svc
     namespace: microservices-dev
