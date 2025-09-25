@@ -1,6 +1,6 @@
 appName: redis-cart
 appImage: redis
-appVersion: 8:2.1
+appVersion: latest
 appReplicas: 1
 containerPort: 6379
 containerEnvVars: []
