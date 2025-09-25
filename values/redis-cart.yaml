@@ -1,6 +1,6 @@
 appName: redis-cart
 appImage: redis
-appVersion: alpine
+appVersion: 8:2.1
 appReplicas: 1
 containerPort: 6379
 containerEnvVars: []

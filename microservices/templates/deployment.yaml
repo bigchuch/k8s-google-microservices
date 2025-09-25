@@ -18,7 +18,11 @@ spec:
     spec:
       containers:
         - name: {{ .Values.appName }}
+          {{- if eq .Values.appName "redis-cart" }}
+          image: "{{ .Values.appImage }}:{{ .Values.appVersion }}"
+          {{- else }}
           image: "{{ .Values.appImage }}:{{ .Values.appName }}-{{ .Values.appVersion }}"
+          {{- end }}
           ports:
             - containerPort: {{ .Values.containerPort }}
           {{- if .Values.containerEnvVars }}
